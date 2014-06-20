@@ -6,9 +6,13 @@ class NotifierHook < Redmine::Hook::Listener
     @project = context[:project]
     @issue = context[:issue]
     @author = @issue.author
-    @channel = project_to_channel(@project.name)
+
+    name = @project.nil? ? context[:issue].project.name : @project.name
+    @channel = project_to_channel(name)
+
     @assigned_message = @issue.assigned_to.nil? ? "No-one" : "#{@issue.assigned_to.firstname} #{@issue.assigned_to.lastname}"
-    speak "#{@channel} #{@author.firstname} #{@author.lastname} Created a new Issue:「#{@issue.subject}」"
+
+    speak "#{@channel} #{@author.firstname} #{@author.lastname} Created a new Issue:「「#{name}:#{@issue.subject}」"
     speak "#{@channel} Status:「#{@issue.status.name}」. Assigned to:「#{@assigned_message}」. description:「#{truncate_words(@issue.description)}」"
     speak "#{@channel} url: https://#{Setting.host_name}/issues/#{@issue.id}"
   end
@@ -20,7 +24,11 @@ class NotifierHook < Redmine::Hook::Listener
     @editor = @journal.user
     @assigned_message = issue_assigned_changed?(@issue)
     @status_message = issue_status_changed?(@issue)
-    speak "#{@channel} #{@editor.firstname} #{@editor.lastname} edited:「#{@issue.subject}」"
+
+    name = @project.nil? ? context[:issue].project.name : @project.name
+    @channel = project_to_channel(name)
+
+    speak "#{@channel} #{@editor.firstname} #{@editor.lastname} edited:「#{name}:#{@issue.subject}」"
     speak "#{@channel} Status:「#{@status_message}」. Assigned to:「#{@assigned_message}」. description:「#{truncate_words(@journal.notes)}」"
     speak "#{@channel} url: https://#{Setting.host_name}/issues/#{@issue.id}"
   end
@@ -29,7 +37,9 @@ class NotifierHook < Redmine::Hook::Listener
     @project = context[:project]
     @message = context[:message]
     @author = @message.author
-    speak "#{@channel} #{@author.firstname} #{@author.lastname} wrote a new message「#{@message.subject}」on #{@project.name}:「#{truncate_words(@message.content)}」"
+    name = @project.nil? ? "" : "#{@project.name}" 
+    @channel = project_to_channel(name)
+    speak "#{@channel} #{@author.firstname} #{@author.lastname} wrote a new message「#{@message.subject}」on #{name}:「#{truncate_words(@message.content)}」"
     speak "#{@channel} url: https://#{Setting.host_name}/boards/#{@message.board.id}/topics/#{@message.root.id}#message-#{@message.id}"
   end
 
@@ -37,7 +47,9 @@ class NotifierHook < Redmine::Hook::Listener
     @project = context[:project]
     @message = context[:message]
     @author = @message.author
-    speak "#{@channel} #{@author.firstname} #{@author.lastname} replied a message「#{@message.subject}」on #{@project.name}: 「#{truncate_words(@message.content)}」"
+    name = @project.nil? ? "" : "#{@project.name}"
+    @channel = project_to_channel(name)
+    speak "#{@channel} #{@author.firstname} #{@author.lastname} replied a message「#{@message.subject}」on #{name}: 「#{truncate_words(@message.content)}」"
     speak "#{@channel} url: https://#{Setting.host_name}/boards/#{@message.board.id}/topics/#{@message.root.id}#message-#{@message.id}"
   end
 
@@ -45,7 +57,9 @@ class NotifierHook < Redmine::Hook::Listener
     @project = context[:project]
     @page = context[:page]
     @author = @page.content.author
-    speak "#{@channel} #{@author.firstname} #{@author.lastname} edited the wiki page「#{@page.pretty_title}」on #{@project.name}."
+    name = @project.nil? ? "" : "#{@project.name}"
+    @channel = project_to_channel(name)
+    speak "#{@channel} #{@author.firstname} #{@author.lastname} edited the wiki page「#{@page.pretty_title}」on #{name}."
     speak "#{@channel} url: https://#{Setting.host_name}/projects/#{@project.identifier}/wiki/#{@page.title}"
   end
 
